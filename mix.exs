@@ -7,7 +7,8 @@ defmodule ReviewScraper.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -21,8 +22,20 @@ defmodule ReviewScraper.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      # HTTP server mocking
+      {:bypass, "~> 2.1", only: :test},
+
+      # Run tests on file change
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
+
+      # Static code analysis
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      tmwtd: ["test.watch --seed 0 --max-failures 1"]
     ]
   end
 end
