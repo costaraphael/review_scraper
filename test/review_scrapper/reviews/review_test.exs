@@ -24,8 +24,8 @@ defmodule ReviewScraper.Reviews.ReviewTest do
       assert review.dealer_rating == 48
     end
 
-    test "simply ignores broken HTML" do
-      assert {:ok, []} = Review.parse_reviews("<this>is</broken>")
+    test "returns an error when bad HTML is given" do
+      assert :error = Review.parse_reviews("<this>is</broken>")
     end
   end
 end

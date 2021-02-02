@@ -30,6 +30,12 @@ defmodule ReviewScraper.MixProject do
       # HTML parsing
       {:floki, "~> 0.29.0"},
 
+      # HTTP client
+      {:tesla, "~> 1.4.0"},
+
+      # HTTP status decoding
+      {:plug, "~> 1.11.0"},
+
       # HTTP server mocking
       {:bypass, "~> 2.1", only: :test},
 

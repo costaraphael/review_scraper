@@ -10,18 +10,18 @@ defmodule ReviewScraper.Reviews.Review do
   """
   def parse_reviews(html_page) do
     with {:ok, doc} <- parse_document(html_page),
-         do: {:ok, find_reviews(doc)}
+         do: find_reviews(doc)
   end
 
   defp parse_document(html_page) do
-    case Floki.parse_document(html_page) do
-      {:ok, doc} -> {:ok, doc}
-    end
+    Floki.parse_document(html_page)
   end
 
   defp find_reviews(doc) do
-    Floki.find(doc, "#reviews .review-entry")
-    |> Enum.map(&parse_review/1)
+    case Floki.find(doc, "#reviews .review-entry") do
+      [] -> :error
+      reviews -> {:ok, Enum.map(reviews, &parse_review/1)}
+    end
   end
 
   defp parse_review(doc) do
