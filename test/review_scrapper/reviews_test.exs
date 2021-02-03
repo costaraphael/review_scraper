@@ -39,14 +39,17 @@ defmodule ReviewScraper.ReviewsTest do
     test "returns error if the server returns an error" do
       bypass = mock_failing_http_server()
 
-      assert {:error, {:failed_to_fetch_page, 1, :internal_server_error}} =
+      assert {:error, %Reviews.BadHTTPStatusError{page: 1, status: :internal_server_error}} =
                Reviews.list_reviews(pages: 1, http_options: http_options(bypass))
+
+      assert {:error, %Reviews.HTTPError{page: 1, error: :econnrefused}} =
+               Reviews.list_reviews(pages: 1, http_options: [base_url: "http://999.999.999.999"])
     end
 
     test "returns error if the review parsing fails" do
       bypass = mock_http_server(response: "<some>bad</html>")
 
-      assert {:error, {:failed_to_parse_page, 1}} =
+      assert {:error, %Reviews.ReviewsParsingError{page: 1}} =
                Reviews.list_reviews(pages: 1, http_options: http_options(bypass))
     end
   end

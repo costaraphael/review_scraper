@@ -22,7 +22,8 @@ defmodule ReviewScraper.Reviews.HTTPClientTest do
     test "returns error if the server has an error" do
       bypass = mock_failing_http_server()
 
-      assert {:error, :internal_server_error} = HTTPClient.fetch_page(1, http_options(bypass))
+      assert {:error, {:bad_http_status, :internal_server_error}} =
+               HTTPClient.fetch_page(1, http_options(bypass))
     end
   end
 end

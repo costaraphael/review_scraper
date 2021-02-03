@@ -5,7 +5,13 @@ defmodule ReviewScraper.Reviews do
   All function related to dealing with reviews should live here.
   """
 
-  alias ReviewScraper.Reviews.{HTTPClient, Review}
+  alias ReviewScraper.Reviews.{
+    BadHTTPStatusError,
+    HTTPClient,
+    HTTPError,
+    Review,
+    ReviewsParsingError
+  }
 
   @doc """
   Returns a list of reviews.
@@ -56,15 +62,21 @@ defmodule ReviewScraper.Reviews do
 
   defp fetch_page(page_number, http_options) do
     case HTTPClient.fetch_page(page_number, http_options) do
-      {:ok, body} -> {:ok, body}
-      {:error, error} -> {:error, {:failed_to_fetch_page, page_number, error}}
+      {:ok, body} ->
+        {:ok, body}
+
+      {:error, {:http_error, error}} ->
+        {:error, %HTTPError{page: page_number, error: error}}
+
+      {:error, {:bad_http_status, status}} ->
+        {:error, %BadHTTPStatusError{page: page_number, status: status}}
     end
   end
 
   defp parse_reviews(page_number, body) do
     case Review.parse_reviews(body) do
       {:ok, reviews} -> {:ok, reviews}
-      :error -> {:error, {:failed_to_parse_page, page_number}}
+      :error -> {:error, %ReviewsParsingError{page: page_number}}
     end
   end
 end

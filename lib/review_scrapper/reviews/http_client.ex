@@ -14,9 +14,14 @@ defmodule ReviewScraper.Reviews.HTTPClient do
     url = "#{base_url}/page#{page_number}/?filter=ONLY_POSITIVE"
 
     case Tesla.get(url) do
-      {:ok, %Tesla.Env{body: body, status: status}} when status in 200..299 -> {:ok, body}
-      {:ok, %Tesla.Env{status: status}} -> {:error, Plug.Conn.Status.reason_atom(status)}
-      {:error, error} -> {:error, {:http_error, error}}
+      {:ok, %Tesla.Env{body: body, status: status}} when status in 200..299 ->
+        {:ok, body}
+
+      {:ok, %Tesla.Env{status: status}} ->
+        {:error, {:bad_http_status, Plug.Conn.Status.reason_atom(status)}}
+
+      {:error, error} ->
+        {:error, {:http_error, error}}
     end
   end
 end
