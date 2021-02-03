@@ -50,4 +50,28 @@ defmodule ReviewScraper.ReviewsTest do
                Reviews.list_reviews(pages: 1, http_options: http_options(bypass))
     end
   end
+
+  describe "list_top_offending_reviews/1" do
+    test "returns the top offending reviews" do
+      bypass = mock_http_server()
+
+      assert {:ok, [%Reviews.Review{}, _, _] = reviews} =
+               Reviews.list_top_offending_reviews(
+                 limit: 3,
+                 pages: 3,
+                 http_options: http_options(bypass)
+               )
+
+      assert_received {:request_received,
+                       %{request_path: "/page1/", query_params: %{"filter" => "ONLY_POSITIVE"}}}
+
+      assert_received {:request_received,
+                       %{request_path: "/page2/", query_params: %{"filter" => "ONLY_POSITIVE"}}}
+
+      assert_received {:request_received,
+                       %{request_path: "/page3/", query_params: %{"filter" => "ONLY_POSITIVE"}}}
+
+      assert Enum.all?(reviews, &(&1.dealer_rating == 50))
+    end
+  end
 end

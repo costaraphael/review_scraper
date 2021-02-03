@@ -12,8 +12,9 @@ defmodule ReviewScraper.Reviews do
 
   ### Options
 
-    - `:pages` - the number of pages to fetch.
-    - `:http_options` - options to be forwarded to the `ReviewScraper.Reviews.HTTPClient` module.
+    - `:pages` - the number of pages to fetch (defaults to `5`).
+    - `:http_options` - options to be forwarded to the `ReviewScraper.Reviews.HTTPClient` module
+    (defaults to `[]`).
   """
   def list_reviews(opts \\ []) do
     page_count = Keyword.get(opts, :pages, 5)
@@ -21,6 +22,28 @@ defmodule ReviewScraper.Reviews do
 
     with {:ok, pages} <- get_pages(page_count, http_options, []),
          do: {:ok, List.flatten(pages)}
+  end
+
+  @doc """
+  Returns the top offending reviews.
+
+  ### Options
+
+  Accepts the same options as the `list_reviews/1` function, with the addition of:
+
+    - `:limit` - the number of top offending reviews to return (defaults to `3`).
+  """
+  def list_top_offending_reviews(opts \\ []) do
+    {limit, opts} = Keyword.pop(opts, :limit, 3)
+
+    with {:ok, reviews} <- list_reviews(opts) do
+      top_offending_reviews =
+        reviews
+        |> Enum.sort({:desc, Review})
+        |> Enum.take(limit)
+
+      {:ok, top_offending_reviews}
+    end
   end
 
   defp get_pages(0, _http_options, pages), do: {:ok, pages}

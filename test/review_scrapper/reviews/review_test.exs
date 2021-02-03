@@ -28,4 +28,33 @@ defmodule ReviewScraper.Reviews.ReviewTest do
       assert :error = Review.parse_reviews("<this>is</broken>")
     end
   end
+
+  describe "compare/2" do
+    test "returns if the first review is more positive than the second" do
+      review1 = %Review{dealer_rating: 45}
+      review2 = %Review{dealer_rating: 50}
+
+      assert Review.compare(review1, review2) == :lt
+      assert Review.compare(review2, review1) == :gt
+      assert Review.compare(review2, review2) == :eq
+    end
+  end
+
+  describe "String.Chars implementation" do
+    test "returns a string representation of a review" do
+      review = %Review{
+        title: "Soo good!!",
+        author: "John Doe",
+        body: "Here's some lengthy description of why the service was soo good!",
+        dealer_rating: 40
+      }
+
+      assert to_string(review) == """
+             "Soo good!!" - John Doe
+             Rating: 40/50
+
+             Here's some lengthy description of why the service was soo good!
+             """
+    end
+  end
 end
